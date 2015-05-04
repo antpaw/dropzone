@@ -102,6 +102,7 @@ class Dropzone extends Emitter
     "dragover"
     "dragleave"
     "addedfile"
+    "addedfiles"
     "removedfile"
     "thumbnail"
     "error"
@@ -492,6 +493,7 @@ class Dropzone extends Emitter
     
     queuecomplete: noop
 
+    addedfiles: noop
 
 
     # This template will be chosen when a new file is dropped.
@@ -621,6 +623,8 @@ class Dropzone extends Emitter
 
   getUploadingFiles: -> @getFilesWithStatus Dropzone.UPLOADING
 
+  getAddedFiles: -> @getFilesWithStatus Dropzone.ADDED
+
   # Files that are either queued or uploading
   getActiveFiles: -> file for file in @files when file.status == Dropzone.UPLOADING or file.status == Dropzone.QUEUED
 
@@ -655,6 +659,7 @@ class Dropzone extends Emitter
         @hiddenFileInput.addEventListener "change", =>
           files = @hiddenFileInput.files
           @addFile file for file in files if files.length
+          @emit "addedfiles", files
           setupHiddenFileInput()
       setupHiddenFileInput()
 
@@ -674,7 +679,7 @@ class Dropzone extends Emitter
 
     # Emit a `queuecomplete` event if all files finished uploading.
     @on "complete", (file) =>
-      if @getUploadingFiles().length == 0 and @getQueuedFiles().length == 0
+      if @getAddedFiles().length == 0 and @getUploadingFiles().length == 0 and @getQueuedFiles().length == 0
         # This needs to be deferred so that `queuecomplete` really triggers after `complete`
         setTimeout (=> @emit "queuecomplete"), 0
 
@@ -871,6 +876,7 @@ class Dropzone extends Emitter
     @emit "drop", e
 
     files = e.dataTransfer.files
+    @emit "addedfiles", files
 
     # Even if it's a folder, files.length will contain the folders.
     if files.length
@@ -1223,7 +1229,8 @@ class Dropzone extends Emitter
 
     extend headers, @options.headers if @options.headers
 
-    xhr.setRequestHeader headerName, headerValue for headerName, headerValue of headers
+    for headerName, headerValue of headers
+      xhr.setRequestHeader headerName, headerValue if headerValue
 
     formData = new FormData()
 
