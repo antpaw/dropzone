@@ -143,16 +143,14 @@ class Dropzone extends Emitter
 
     # The base that is used to calculate the filesize. You can change this to
     # 1024 if you would rather display kibibytes, mebibytes, etc...
+    # 1024 is technically incorrect,
+    # because `1024 bytes` are `1 kibibyte` not `1 kilobyte`.
+    # You can change this to `1024` if you don't care about validity.
     filesizeBase: 1000
 
     # Can be used to limit the maximum number of files that will be handled
     # by this Dropzone
     maxFiles: null
-
-    # The base used to calculate filesizes. 1024 is technically incorrect,
-    # because `1024 bytes` are `1 kibibyte` not `1 kilobyte`.
-    # You can change this to `1024` if you don't care about validity.
-    filesizeBase: 1000
 
     # Can be an object of additional parameters to transfer to the server.
     # This is the same as adding hidden input fields in the form element.
@@ -291,7 +289,11 @@ class Dropzone extends Emitter
         @element.appendChild messageElement
 
       span = messageElement.getElementsByTagName("span")[0]
-      span.textContent = @options.dictFallbackMessage if span
+      if span
+        if span.textContent?
+          span.textContent = @options.dictFallbackMessage
+        else if span.innerText?
+          span.innerText = @options.dictFallbackMessage
 
       @element.appendChild @getFallbackForm()
 
@@ -1260,8 +1262,10 @@ class Dropzone extends Emitter
     # last parameter
     formData.append @_getParamName(i), files[i], files[i].name for i in [0..files.length-1]
 
-    xhr.send formData
+    @submitRequest xhr, formData, files
 
+  submitRequest: (xhr, formData, files) ->
+    xhr.send formData
 
   # Called internally when processing is finished.
   # Individual callbacks have to be called in the appropriate sections.
