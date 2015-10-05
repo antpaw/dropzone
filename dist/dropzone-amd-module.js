@@ -1419,7 +1419,7 @@
       for (i = _m = 0, _ref5 = files.length - 1; 0 <= _ref5 ? _m <= _ref5 : _m >= _ref5; i = 0 <= _ref5 ? ++_m : --_m) {
         formData.append(this._getParamName(i), files[i], files[i].name);
       }
-      if (options.sendDataAsBody) {
+      if (this.options.sendDataAsBody) {
         return this.submitRequestAsBody(xhr, formData, files);
       } else {
         return this.submitRequest(xhr, formData, files);
