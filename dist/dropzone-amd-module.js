@@ -302,9 +302,13 @@
                   return _this.removeFile(file);
                 });
               } else {
-                return Dropzone.confirm(_this.options.dictRemoveFileConfirmation, function() {
+                if (_this.options.dictRemoveFileConfirmation) {
+                  return Dropzone.confirm(_this.options.dictRemoveFileConfirmation, function() {
+                    return _this.removeFile(file);
+                  });
+                } else {
                   return _this.removeFile(file);
-                });
+                }
               }
             };
           })(this);
@@ -1644,7 +1648,7 @@
   };
 
   Dropzone.confirm = function(question, accepted, rejected) {
-    if (!question || window.confirm(question)) {
+    if (window.confirm(question)) {
       return accepted();
     } else if (rejected != null) {
       return rejected();
